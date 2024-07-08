@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload and Convert</title>
+</head>
+<body>
+    <h2>Upload a File</h2>
+    <form id="uploadForm" method="POST" enctype="multipart/form-data" action="/upload">
+        <input type="file" name="file" id="fileInput" accept=".txt,.csv">
+        <button type="submit">Upload File</button>
+    </form>
+
+    <button type="button" id="convertButton" style="display:none;">Convert and Print</button>
+
+    <pre id="consoleOutput"></pre>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            event.preventDefault();  // Prevent default form submission
+            
+            var formData = new FormData();
+            var fileInput = document.getElementById('fileInput').files[0];
+            formData.append('file', fileInput);
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                // Display convert button after successful upload
+                document.getElementById('convertButton').style.display = 'inline-block';
+                
+                // Display message or data from server response
+                document.getElementById('consoleOutput').innerText = data;
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        document.getElementById('convertButton').addEventListener('click', function() {
+            fetch('/convert', {
+                method: 'POST'
+            })
+            .then(response => response.text())
+            .then(data => {
+                // Print to console
+                console.log(data);
+
+                // Display on webpage
+                document.getElementById('consoleOutput').innerText = data;
+            })
+            .catch(error => console.error('Error:', error));
+
+            // Call a new endpoint to print "hello"
+            fetch('/print', {
+                method: 'POST'
+            })
+            .then(response => response.text())
+            .then(data => {
+                console.log(data);  // Log response from server
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>
